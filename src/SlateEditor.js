@@ -31,7 +31,7 @@ export default function SlateEditor() {
           </blockquote>
         );
       case "bulleted-list":
-        return <ul {...props.attributes}>{props.children}</ul>;
+        return <li {...props.attributes}>{props.children}</li>;
       case "heading-one":
         return <h1 {...props.attributes}>{props.children}</h1>;
       case "heading-two":
@@ -348,7 +348,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleListItemMark(editor);
+            CustomEditor.toggleBulletedListMark(editor);
           }}
         >
           bullets
