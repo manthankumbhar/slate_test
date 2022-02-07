@@ -131,100 +131,6 @@ export default function SlateEditor() {
         Transforms.wrapNodes(editor, block);
       }
     },
-
-    // toggleBoldMark(editor) {
-    //   const isActive = CustomEditor.isActive(editor, "bold");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? null : "bold" },
-    //     { match: (n) => Text.isText(n), split: true }
-    //   );
-    // },
-
-    // toggleCodeBlock(editor) {
-    //   const isActive = CustomEditor.isActive(editor, "code");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? null : "code" },
-    //     { match: (n) => Text.isText(n), split: true }
-    //   );
-    // },
-
-    // toggleItalicMark(editor) {
-    //   const isActive = CustomEditor.isActive(editor, "italic");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? null : "italic" },
-    //     { match: (n) => Text.isText(n), split: true }
-    //   );
-    // },
-
-    // toggleUnderlineMark(editor) {
-    //   const isActive = CustomEditor.isActive(editor, "underline");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? null : "underline" },
-    //     { match: (n) => Text.isText(n), split: true }
-    //   );
-    // },
-
-    // toggleStrikeThroughMark(editor) {
-    //   const isActive = CustomEditor.isActive(editor, "strikeThrough");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? null : "strikeThrough" },
-    //     { match: (n) => Text.isText(n), split: true }
-    //   );
-    // },
-
-    // toggleHeadingOneMark(editor) {
-    //   const isActive = CustomEditor.isBlockActive(editor, "heading-one");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? "paragraph" : "heading-one" },
-    //     { match: (n) => Editor.isBlock(editor, n) }
-    //   );
-    // },
-
-    // toggleHeadingTwoMark(editor) {
-    //   const isActive = CustomEditor.isBlockActive(editor, "heading-two");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? "paragraph" : "heading-two" },
-    //     { match: (n) => Editor.isBlock(editor, n) }
-    //   );
-    // },
-
-    // toggleBulletedListMark(editor) {
-    //   const isActive = CustomEditor.isBlockActive(editor, "bulleted-list");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? "paragraph" : "bulleted-list" },
-    //     { match: (n) => Editor.isBlock(editor, n) }
-    //   );
-    // },
-
-    // toggleNumberedListMark(editor) {
-    //   const isActive = CustomEditor.isBlockActive(editor, "list-item");
-    //   const isList = LIST_TYPES.includes("numbered-list");
-    //   const newProperties = {
-    //     type: isActive ? "paragraph" : isList ? "list-item" : "paragraph",
-    //   };
-    //   Transforms.setNodes(editor, newProperties);
-    //   if (!isActive && isList) {
-    //     const block = { type: "numbered-list", children: [] };
-    //     Transforms.wrapNodes(editor, block);
-    //   }
-    // },
-
-    // toggleBlockQuoteMark(editor) {
-    //   const isActive = CustomEditor.isBlockActive(editor, "block-quote");
-    //   Transforms.setNodes(
-    //     editor,
-    //     { type: isActive ? "paragraph" : "block-quote" },
-    //     { match: (n) => Editor.isBlock(editor, n) }
-    //   );
-    // },
   };
 
   return (
@@ -297,14 +203,6 @@ export default function SlateEditor() {
         >
           h2
         </button>
-        {/* <button
-          onMouseDown={(event) => {
-            event.preventDefault();
-            CustomEditor.toggleBlock(editor, "")
-          }}
-        >
-          ordered
-        </button> */}
         <button
           onMouseDown={(event) => {
             event.preventDefault();
