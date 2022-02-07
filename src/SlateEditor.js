@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { createEditor, Editor, Transforms, Text } from "slate";
+import {
+  createEditor,
+  Editor,
+  Transforms,
+  Element as SlateElement,
+} from "slate";
 import { Slate, Editable, withReact } from "slate-react";
 
 export default function SlateEditor() {
@@ -31,7 +36,7 @@ export default function SlateEditor() {
           </blockquote>
         );
       case "bulleted-list":
-        return <li {...props.attributes}>{props.children}</li>;
+        return <ul {...props.attributes}>{props.children}</ul>;
       case "heading-one":
         return <h1 {...props.attributes}>{props.children}</h1>;
       case "heading-two":
@@ -74,189 +79,152 @@ export default function SlateEditor() {
   };
 
   const CustomEditor = {
-    isBoldMarkActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.bold === true,
-        universal: true,
-      });
-
-      return !!match;
+    isMarkActive(editor, format) {
+      const marks = Editor.marks(editor);
+      return marks ? marks[format] === true : false;
     },
 
-    isCodeBlockActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.code === true,
-        universal: true,
-      });
+    isBlockActive(editor, format) {
+      const { selection } = editor;
+      if (!selection) return false;
 
-      return !!match;
-    },
-
-    isItalicActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.italic === true,
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isUnderlineActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.underline === true,
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isStrikeThroughActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.strikeThrough === true,
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isHeadingOneActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "heading-one",
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isHeadingTwoActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "heading-two",
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isBulletedListActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "bulleted-list",
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isNumberedListActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "list-item",
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    isBlockQuoteActive(editor) {
-      const [match] = Editor.nodes(editor, {
-        match: (n) => n.type === "block-quote",
-        universal: true,
-      });
-
-      return !!match;
-    },
-
-    toggleBoldMark(editor) {
-      const isActive = CustomEditor.isBoldMarkActive(editor);
-      Transforms.setNodes(
-        editor,
-        { bold: isActive ? null : true },
-        { match: (n) => Text.isText(n), split: true }
+      const [match] = Array.from(
+        Editor.nodes(editor, {
+          at: Editor.unhangRange(editor, selection),
+          match: (n) =>
+            !Editor.isEditor(n) &&
+            SlateElement.isElement(n) &&
+            n.type === format,
+        })
       );
+
+      return !!match;
     },
 
-    toggleCodeBlock(editor) {
-      const isActive = CustomEditor.isCodeBlockActive(editor);
-      Transforms.setNodes(
-        editor,
-        { code: isActive ? null : true },
-        { match: (n) => Text.isText(n), split: true }
-      );
+    toggleMark(editor, format) {
+      const isActive = CustomEditor.isMarkActive(editor, format);
+      if (isActive) {
+        Editor.removeMark(editor, format);
+      } else {
+        Editor.addMark(editor, format, true);
+      }
     },
 
-    toggleItalicMark(editor) {
-      const isActive = CustomEditor.isItalicActive(editor);
-      Transforms.setNodes(
-        editor,
-        { italic: isActive ? null : true },
-        { match: (n) => Text.isText(n), split: true }
-      );
-    },
+    toggleBlock(editor, format) {
+      const isActive = CustomEditor.isBlockActive(editor, format);
+      const isList = LIST_TYPES.includes(format);
 
-    toggleUnderlineMark(editor) {
-      const isActive = CustomEditor.isUnderlineActive(editor);
-      Transforms.setNodes(
-        editor,
-        { underline: isActive ? null : true },
-        { match: (n) => Text.isText(n), split: true }
-      );
-    },
-
-    toggleStrikeThroughMark(editor) {
-      const isActive = CustomEditor.isStrikeThroughActive(editor);
-      Transforms.setNodes(
-        editor,
-        { strikeThrough: isActive ? null : true },
-        { match: (n) => Text.isText(n), split: true }
-      );
-    },
-
-    toggleHeadingOneMark(editor) {
-      const isActive = CustomEditor.isHeadingOneActive(editor);
-      Transforms.setNodes(
-        editor,
-        { type: isActive ? "paragraph" : "heading-one" },
-        { match: (n) => Editor.isBlock(editor, n) }
-      );
-    },
-
-    toggleHeadingTwoMark(editor) {
-      const isActive = CustomEditor.isHeadingTwoActive(editor);
-      Transforms.setNodes(
-        editor,
-        { type: isActive ? "paragraph" : "heading-two" },
-        { match: (n) => Editor.isBlock(editor, n) }
-      );
-    },
-
-    toggleBulletedListMark(editor) {
-      const isActive = CustomEditor.isBulletedListActive(editor);
-      Transforms.setNodes(
-        editor,
-        { type: isActive ? "paragraph" : "bulleted-list" },
-        { match: (n) => Editor.isBlock(editor, n) }
-      );
-    },
-
-    toggleNumberedListMark(editor) {
-      const isActive = CustomEditor.isNumberedListActive(editor);
-      const isList = LIST_TYPES.includes("numbered-list");
+      Transforms.unwrapNodes(editor, {
+        match: (n) =>
+          !Editor.isEditor(n) &&
+          SlateElement.isElement(n) &&
+          LIST_TYPES.includes(n.type),
+        split: true,
+      });
       const newProperties = {
-        type: isActive ? "paragraph" : isList ? "list-item" : "paragraph",
+        type: isActive ? "paragraph" : isList ? "list-item" : format,
       };
       Transforms.setNodes(editor, newProperties);
+
       if (!isActive && isList) {
-        const block = { type: "numbered-list", children: [] };
+        const block = { type: format, children: [] };
         Transforms.wrapNodes(editor, block);
       }
     },
 
-    toggleBlockQuoteMark(editor) {
-      const isActive = CustomEditor.isBlockQuoteActive(editor);
-      Transforms.setNodes(
-        editor,
-        { type: isActive ? "paragraph" : "block-quote" },
-        { match: (n) => Editor.isBlock(editor, n) }
-      );
-    },
+    // toggleBoldMark(editor) {
+    //   const isActive = CustomEditor.isActive(editor, "bold");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? null : "bold" },
+    //     { match: (n) => Text.isText(n), split: true }
+    //   );
+    // },
+
+    // toggleCodeBlock(editor) {
+    //   const isActive = CustomEditor.isActive(editor, "code");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? null : "code" },
+    //     { match: (n) => Text.isText(n), split: true }
+    //   );
+    // },
+
+    // toggleItalicMark(editor) {
+    //   const isActive = CustomEditor.isActive(editor, "italic");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? null : "italic" },
+    //     { match: (n) => Text.isText(n), split: true }
+    //   );
+    // },
+
+    // toggleUnderlineMark(editor) {
+    //   const isActive = CustomEditor.isActive(editor, "underline");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? null : "underline" },
+    //     { match: (n) => Text.isText(n), split: true }
+    //   );
+    // },
+
+    // toggleStrikeThroughMark(editor) {
+    //   const isActive = CustomEditor.isActive(editor, "strikeThrough");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? null : "strikeThrough" },
+    //     { match: (n) => Text.isText(n), split: true }
+    //   );
+    // },
+
+    // toggleHeadingOneMark(editor) {
+    //   const isActive = CustomEditor.isBlockActive(editor, "heading-one");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? "paragraph" : "heading-one" },
+    //     { match: (n) => Editor.isBlock(editor, n) }
+    //   );
+    // },
+
+    // toggleHeadingTwoMark(editor) {
+    //   const isActive = CustomEditor.isBlockActive(editor, "heading-two");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? "paragraph" : "heading-two" },
+    //     { match: (n) => Editor.isBlock(editor, n) }
+    //   );
+    // },
+
+    // toggleBulletedListMark(editor) {
+    //   const isActive = CustomEditor.isBlockActive(editor, "bulleted-list");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? "paragraph" : "bulleted-list" },
+    //     { match: (n) => Editor.isBlock(editor, n) }
+    //   );
+    // },
+
+    // toggleNumberedListMark(editor) {
+    //   const isActive = CustomEditor.isBlockActive(editor, "list-item");
+    //   const isList = LIST_TYPES.includes("numbered-list");
+    //   const newProperties = {
+    //     type: isActive ? "paragraph" : isList ? "list-item" : "paragraph",
+    //   };
+    //   Transforms.setNodes(editor, newProperties);
+    //   if (!isActive && isList) {
+    //     const block = { type: "numbered-list", children: [] };
+    //     Transforms.wrapNodes(editor, block);
+    //   }
+    // },
+
+    // toggleBlockQuoteMark(editor) {
+    //   const isActive = CustomEditor.isBlockActive(editor, "block-quote");
+    //   Transforms.setNodes(
+    //     editor,
+    //     { type: isActive ? "paragraph" : "block-quote" },
+    //     { match: (n) => Editor.isBlock(editor, n) }
+    //   );
+    // },
   };
 
   return (
@@ -284,7 +252,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleBoldMark(editor);
+            CustomEditor.toggleMark(editor, "bold");
           }}
         >
           Bold
@@ -292,7 +260,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleCodeBlock(editor);
+            CustomEditor.toggleMark(editor, "code");
           }}
         >
           Code Block
@@ -300,7 +268,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleItalicMark(editor);
+            CustomEditor.toggleMark(editor, "italic");
           }}
         >
           Italic
@@ -308,7 +276,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleStrikeThroughMark(editor);
+            CustomEditor.toggleMark(editor, "strikeThrough");
           }}
         >
           Strike Through
@@ -316,7 +284,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleHeadingOneMark(editor);
+            CustomEditor.toggleBlock(editor, "heading-one");
           }}
         >
           h1
@@ -324,7 +292,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleHeadingTwoMark(editor);
+            CustomEditor.toggleBlock(editor, "heading-two");
           }}
         >
           h2
@@ -332,7 +300,7 @@ export default function SlateEditor() {
         {/* <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleNumberedListMark(editor);
+            CustomEditor.toggleBlock(editor, "")
           }}
         >
           ordered
@@ -340,7 +308,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleNumberedListMark(editor);
+            CustomEditor.toggleBlock(editor, "numbered-list");
           }}
         >
           numbered
@@ -348,7 +316,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleBulletedListMark(editor);
+            CustomEditor.toggleBlock(editor, "bulleted-list");
           }}
         >
           bullets
@@ -356,7 +324,7 @@ export default function SlateEditor() {
         <button
           onMouseDown={(event) => {
             event.preventDefault();
-            CustomEditor.toggleBlockQuoteMark(editor);
+            CustomEditor.toggleBlock(editor, "block-quote");
           }}
         >
           quote
@@ -380,25 +348,25 @@ export default function SlateEditor() {
           switch (event.key) {
             case "`": {
               event.preventDefault();
-              CustomEditor.toggleCodeBlock(editor);
+              CustomEditor.toggleMark(editor, "code");
               break;
             }
 
             case "b": {
               event.preventDefault();
-              CustomEditor.toggleBoldMark(editor);
+              CustomEditor.toggleMark(editor, "bold");
               break;
             }
 
             case "i": {
               event.preventDefault();
-              CustomEditor.toggleItalicMark(editor);
+              CustomEditor.toggleMark(editor, "italic");
               break;
             }
 
             case "u": {
               event.preventDefault();
-              CustomEditor.toggleUnderlineMark(editor);
+              CustomEditor.toggleMark(editor, "underline");
               break;
             }
 
