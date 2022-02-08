@@ -6,6 +6,7 @@ import {
   Element as SlateElement,
 } from "slate";
 import { Slate, Editable, withReact } from "slate-react";
+import "./SlateEditor.scss";
 
 export default function SlateEditor() {
   const editor = useMemo(() => withReact(createEditor()), []);
@@ -156,6 +157,7 @@ export default function SlateEditor() {
         }}
       >
         <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleMark(editor, "bold");
@@ -164,14 +166,7 @@ export default function SlateEditor() {
           Bold
         </button>
         <button
-          onMouseDown={(event) => {
-            event.preventDefault();
-            CustomEditor.toggleMark(editor, "code");
-          }}
-        >
-          Code Block
-        </button>
-        <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleMark(editor, "italic");
@@ -180,52 +175,76 @@ export default function SlateEditor() {
           Italic
         </button>
         <button
+          className="SlateEditor__btn"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            CustomEditor.toggleMark(editor, "code");
+          }}
+        >
+          Code
+        </button>
+        <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleMark(editor, "strikeThrough");
           }}
         >
-          Strike Through
+          Strike
         </button>
         <button
+          className="SlateEditor__btn"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            CustomEditor.toggleMark(editor, "underline");
+          }}
+        >
+          Underline
+        </button>
+        <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleBlock(editor, "heading-one");
           }}
         >
-          h1
+          H1
         </button>
         <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleBlock(editor, "heading-two");
           }}
         >
-          h2
+          H2
         </button>
         <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleBlock(editor, "numbered-list");
           }}
         >
-          numbered
+          Numbered
         </button>
         <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleBlock(editor, "bulleted-list");
           }}
         >
-          bullets
+          Bullets
         </button>
         <button
+          className="SlateEditor__btn"
           onMouseDown={(event) => {
             event.preventDefault();
             CustomEditor.toggleBlock(editor, "block-quote");
           }}
         >
-          quote
+          Quote
         </button>
       </div>
       <Editable
@@ -233,7 +252,7 @@ export default function SlateEditor() {
           border: "1px solid black",
           margin: "20px",
           borderRadius: "5px",
-          backgroundColor: "#F0F0F0",
+          backgroundColor: "#F2F2F2",
           textAlign: "left",
           padding: "10px",
         }}
